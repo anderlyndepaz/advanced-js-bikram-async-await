@@ -6,6 +6,9 @@ async function getRandomPokemon() {
 
     try {
         let response = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokemonAleatorio}`)
+        if (!response.ok) {
+           
+        }
         let data = response.json();
 
         return data
@@ -22,14 +25,19 @@ async function getRandomPokemon() {
 
 // ejercicio 2 
 async function getImageAndName(pokemon) {
-
+try{
     let response = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokemon}`)
+    
+    if (!response.ok) {
+           
+    }
     let data = await response.json();
     let name = data.name;
     let img = data.sprites.front_default;
     return { name, img }
-
-}
+} catch {
+    console.log('Error');
+} }
 
 //Ejercicio 3.- Declara una funcion printImageAndName que retorne el string necesario para pintar 
 //la imagen y el nombre del pokemon en el DOM de la siguiente forma:
@@ -62,7 +70,7 @@ async function printImageAndName(pokemon) {
         let response = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokemon}`);
 
         if (!response.ok) {
-            // throw new Error(`Pokemon not found: ${pokemon}`);
+           
         }
 
         let data = await response.json();
@@ -101,6 +109,9 @@ printImageAndName('pikachu')
 async function getRandomDogImage(params) {
     try {
         const response = await fetch(`https://dog.ceo/api/breeds/image/random`)
+        if (!response.ok) {
+           
+        }
         const data = await response.json();
 
         const img = data.message;
@@ -243,65 +254,80 @@ async function printPugVsPikachu() {
 //     });
 // });
 
-async function getRandomCharacterInfo() {
-    const randomId = Math.floor(Math.random() * 826) + 1; // ID aleatorio entre 1 y 826
+// ejercicio 7 
+
+
+
+async function getRandomCharacter() {
+
+    let personajeAleatorio = Math.floor(Math.random() * 20) + 1;
 
     try {
-        // Obtener información del personaje
+        let response = await fetch(`https://rickandmortyapi.com/api/character/${personajeAleatorio}`)
+        if (!response.ok) {
+           
+        }
+        let data = response.json();
+
+        return data
+
+    } catch {
+        console.log('Error');
+    };
+    {
+
+    }
+} getRandomCharacter().then(datos => console.log(datos));
+
+//ejercicio 8
+
+async function getRandomCharacterInfo() {
+    const randomId = Math.floor(Math.random() * 826) + 1;
+
+    try {
         const response = await fetch(`https://rickandmortyapi.com/api/character/${randomId}`);
         if (!response.ok) {
             throw new Error('Error al obtener el personaje');
         }
         const character = await response.json();
 
-        // Obtener información del primer episodio
-        const firstEpisodeUrl = character.episode[0]; // URL del primer episodio
+        if (character.episode.length === 0) {
+            throw new Error('Este personaje no tiene episodios asociados');
+        }
+
+        const firstEpisodeUrl = character.episode[0];
         const episodeResponse = await fetch(firstEpisodeUrl);
         if (!episodeResponse.ok) {
             throw new Error('Error al obtener el episodio');
         }
         const episode = await episodeResponse.json();
 
-        // Retornar los datos requeridos
         return {
+            img: character.image,  
             name: character.name,
-            image: character.image,
-            episodes: character.episode.length,
-            firstEpisodeName: episode.name,
-            firstEpisodeAirDate: episode.air_date
+            episodes: character.episode,
+            firstEpisode: episode.name,  
+            dateEpisode: episode.air_date  
         };
 
     } catch (error) {
         console.error('Error:', error);
-        return null; // Devuelve null en caso de error
+        return null;
     }
 }
 
-// Función para mostrar el personaje en el DOM
-function displayCharacter(character) {
-    const container = document.getElementById("character-container");
-    container.innerHTML = ""; // Limpiar el contenedor
+//Ejercicio 9.- Pinta los anteriores datos en el DOM (no se testea)
 
-    if (character) {
-        const html = `
-            <section>
-                <h1>${character.name}</h1>
-                <p><strong>Episodios:</strong> ${character.episodes}</p>
-                <p><strong>Primer episodio:</strong> ${character.firstEpisodeName}</p>
-                <p><strong>Fecha de estreno:</strong> ${character.firstEpisodeAirDate}</p>
-                <img src="${character.image}" alt="${character.name}" style="width: 200px;">
-            </section>
-        `;
-        container.innerHTML = html; // Insertar el HTML en el contenedor
-    } else {
-        container.innerHTML = "<p>No se pudo obtener un personaje.</p>";
-    }
-}
-
-// Ejemplo de uso
+getRandomCharacterInfo().then(personaje => {
+const section = document.getElementById("ejercicio-9") 
+section.innerHTML = ` <section>
+          <img src="${personaje.img}" alt="Personaje aleatorio">
+          <h1>Nomrbre = ${personaje.name}</h1>
+          <p>Episodios: ${personaje.episodes}</p>
+          <p>Primer Episodio: ${personaje.firstEpisode}</p>
+          <p>Fecha: ${personaje.dateEpisode}</p>
+        </section> `
+}) 
 document.addEventListener("DOMContentLoaded", () => {
-    getRandomCharacterInfo().then(character => {
-        displayCharacter(character); // Mostrar el personaje en el DOM
-    });
-});
-
+    getRandomCharacterInfo();
+  });
